@@ -1,0 +1,36 @@
+
+.root{
+    -fx-font-size: 16;
+    -fx-background-image: url("/images/1.jpg");
+    -fx-font-color: black;
+
+}
+.text-ares{
+    -fx-background-color: #9999;
+    -fx-control-inner-background-color: #777;
+    -fx-text-fill:coral;
+    -fx-highlight-text-fill: aqua;
+    -fx-highlight-fill: blue;
+}
+
+.text-ares{
+    -fx-font-style: italic;
+    -fx-font-size: 12;
+    -fx-font-color: black;
+}
+.button{
+    -fx-background-color: #555;
+}
+
+.button:hover, #btn:hover{
+    -fx-background-color: #2225;
+    -fx-font-weight: bold;
+}
+.menu {
+-fx-background-color: #9999;
+}
+
+.minibar{
+-fx-background-color: #9999;
+-fx-color:#9999;
+}
