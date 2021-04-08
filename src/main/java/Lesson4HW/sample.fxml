@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<GridPane fx:controller="Lesson4HW.Controller" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="20" vgap="10">
+    <stylesheets>
+        <URL value="@/css/HW.css" />
+    </stylesheets>
+    <MenuBar>
+        <Menu fx:id="menuFile" text="Welcome to our chat" disable="false">
+            <MenuItem onAction="#clickClose" text="Close" />
+        </Menu>
+    </MenuBar>
+
+    <TextArea fx:id="textArea" GridPane.columnIndex="0" GridPane.rowIndex="1"  disable="true" style="color:black"/>
+    <TextField fx:id="textField" GridPane.columnIndex="0" GridPane.rowIndex="2" onAction="#clickSend" />
+    <Button fx:id="btn" onAction="#clickSend" text="Send" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+
+  </GridPane>
