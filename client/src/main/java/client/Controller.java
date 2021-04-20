@@ -1,14 +1,24 @@
 package client;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -30,6 +40,8 @@ public class Controller implements Initializable {
     public HBox authPanel;
     @FXML
     public HBox standartPanel;
+    @FXML
+    public ListView <String>clientList;
 
     private Socket socket;
     private DataInputStream in;
@@ -39,17 +51,32 @@ public class Controller implements Initializable {
     private boolean authenticated;
     private String nickName;
     private Stage stage;
+    private Stage regStage;
+    private Regcontroller prR;
 
-     @Override
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         Platform.runLater(()->{
             stage = (Stage) textArea.getScene().getWindow();
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                @Override
+                public void handle(WindowEvent event) {
+                    System.out.println("Bye");
+                    if (socket != null && !socket.isClosed()){
+                        try {
+                            out.writeUTF("/end");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         });
 
-         setAuthenticated(false);
+        setAuthenticated(false);
 
-     }
+    }
 
     private void connect() {
         try {
@@ -69,9 +96,15 @@ public class Controller implements Initializable {
                                 break;
                             }
                             if (str.startsWith("/auth_ok")){
-                               nickName = str.split("\\s+")[1];
-                               setAuthenticated(true);
-                               break;
+                                nickName = str.split("\\s+")[1];
+                                setAuthenticated(true);
+                                break;
+                            }
+                            if (str.startsWith("/reg_ok")){
+                                prR.showResult("/reg_ok");
+                            }
+                            if (str.startsWith("/reg_no")){
+                                prR.showResult("/reg_no");
                             }
                         } else {
                             textArea.appendText(str +"\n");
@@ -80,11 +113,23 @@ public class Controller implements Initializable {
 
                     while(authenticated){
                         String str = in.readUTF();
-                        if (str.equals("/end")){
-                            System.out.println("Disconnected");
-                            break;
-                        }
-                        textArea.appendText(str +"\n");
+                        if(str.startsWith("/")) {
+                            if (str.equals("/end")) {
+                                System.out.println("Disconnected");
+                                break;
+                            }
+                            if(str.startsWith("/clientslist")){
+                                String[] token = str.split("\\s+");
+                                Platform.runLater(()->{
+                                    clientList.getItems().clear();
+                                    for (int i = 1;i< token.length;i++){
+                                        clientList.getItems().add(token[i]);
+                                    }
+                                });
+                            }
+
+                        } else
+                            textArea.appendText(str +"\n");
                     }
                 } catch (IOException e){
                     e.printStackTrace();
@@ -105,19 +150,19 @@ public class Controller implements Initializable {
 
     @FXML
     public void sendMsg() {
-            try {
-                String st = textField.getText();
-                out.writeUTF(st);
-                textField.clear();
-                textField.requestFocus();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            String st = textField.getText();
+            out.writeUTF(st);
+            textField.clear();
+            textField.requestFocus();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     @FXML
     public void tryToAuth(ActionEvent actionEvent) {
-         if (socket == null || socket.isClosed()) connect();
-         String msg = String.format("/auth %s %s",loginField.getText().trim(),passwordField.getText().trim()); //trim убирает пробелы
+        if (socket == null || socket.isClosed()) connect();
+        String msg = String.format("/auth %s %s",loginField.getText().trim(),passwordField.getText().trim()); //trim убирает пробелы
         try {
             out.writeUTF(msg);
             passwordField.clear();
@@ -132,8 +177,10 @@ public class Controller implements Initializable {
         authPanel.setManaged(!authenticated);
         standartPanel.setVisible(authenticated);
         standartPanel.setManaged(authenticated);
-        textArea.setVisible(authenticated);
-        textArea.setManaged(authenticated);
+        //  textArea.setVisible(authenticated);
+        //  textArea.setManaged(authenticated);
+        clientList.setVisible(authenticated);
+        clientList.setManaged(authenticated);
 
         if(!authenticated){
             nickName = null;
@@ -142,13 +189,58 @@ public class Controller implements Initializable {
         textArea.clear();
     }
     private void setTitle(String nickName){
-         Platform.runLater(()->{
-             if (nickName.equals("")) {
-                 stage.setTitle("Open chat");
-             } else {
-                 stage.setTitle(String.format("Open chat [%s]" ,nickName));
-             }
-         });
+        Platform.runLater(()->{
+            if (nickName.equals("")) {
+                stage.setTitle("Open chat");
+            } else {
+                stage.setTitle(String.format("Open chat [%s]" ,nickName));
+            }
+        });
     }
+
+    public void clickClientList(MouseEvent mouseEvent) {
+        String receiver =  clientList.getSelectionModel().getSelectedItem();
+        textField.setText("/w " + receiver + "");
+        //textField.requestFocus();
+    }
+
+    private void createRegWindow(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/reg.fxml"));
+            Parent root = fxmlLoader.load();
+            regStage = new Stage();
+            regStage.setTitle("Open chat registration");
+            regStage.setScene(new Scene(root, 400, 320));
+
+            regStage.initModality(Modality.APPLICATION_MODAL);
+            regStage.initStyle(StageStyle.UTILITY);
+
+            prR = fxmlLoader.getController();
+            prR.setController(this);
+
+        } catch(IOException i){
+            i.printStackTrace();
+        }
+    }
+
+    public void tryToReg(ActionEvent actionEvent) {
+        if (regStage ==null){
+            createRegWindow();
+        }
+        Platform.runLater(()->{
+            regStage.show();
+        });
+    }
+    public void registration(String login, String password, String nick){
+        if (socket == null || socket.isClosed()) {connect();}
+        String msg = String.format("/reg %s %s %s", login, password,nick);
+        try {
+            out.writeUTF(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

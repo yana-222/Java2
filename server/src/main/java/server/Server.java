@@ -1,9 +1,13 @@
 package server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
@@ -50,12 +54,26 @@ public class Server {
 
         }
     }
+    public void privatMsg (ClientHandler sender, String receiver, String msg) { // широковещательный
+        String message = String.format("%s -> %s : %s", sender.getNickName(),receiver,msg);
+        for (ClientHandler c: clients){
+            if (c.getNickName().equals(receiver)) {
+                c.sendMsg(message);
+                if(sender.equals(c)) return;
+                sender.sendMsg(message);
+                return;
+            }
+        }
+        sender.sendMsg("User " + receiver + " not found");
+    }
     public void subscribe (ClientHandler clientHandler){
-    clients.add(clientHandler);
+        clients.add(clientHandler);
+        broadcastClientList();
     }
 
     public void unsubscribe (ClientHandler clientHandler){
         clients.remove(clientHandler);
+        broadcastClientList();
     }
 
     public AuthService getAuthService() {
@@ -64,5 +82,26 @@ public class Server {
 
     public List<ClientHandler> getClients() {
         return clients;
+    }
+    public boolean isLoginAuthenticated (String login){
+        for (ClientHandler c : clients) {
+            if (c.getLogin().equals(login)){
+                return true;
+
+            }
+        }
+        return false;
+    }
+    public void broadcastClientList (){
+        StringBuilder sb = new StringBuilder("/clientslist");
+        for (ClientHandler c : clients){
+            sb.append(" ").append(c.getNickName());
+        }
+        String msg = sb.toString();
+
+        for (ClientHandler c : clients){
+            c.sendMsg(msg);
+        }
+        System.out.println(msg);
     }
 }

@@ -5,4 +5,6 @@ public interface AuthService {
     // если есть запись, возврат никнейма;
     // если отсутствует уч. запись, возврат нулл;
     String getNickNameByLoginAndPassword(String login, String password);
+    boolean registration (String login, String password, String nick);
+
 }
