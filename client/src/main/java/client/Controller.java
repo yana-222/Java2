@@ -52,7 +52,9 @@ public class Controller implements Initializable {
     private String nickName;
     private Stage stage;
     private Stage regStage;
+    private Stage changeStage;
     private Regcontroller prR;
+    private Changecontroller changecontroller;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -105,6 +107,12 @@ public class Controller implements Initializable {
                             }
                             if (str.startsWith("/reg_no")){
                                 prR.showResult("/reg_no");
+                            }
+                            if (str.startsWith("/change_ok")){
+                                changecontroller.showResult("/change_ok");
+                            }
+                            if (str.startsWith("/change_no")){
+                                changecontroller.showResult("/change_no");
                             }
                         } else {
                             textArea.appendText(str +"\n");
@@ -190,7 +198,7 @@ public class Controller implements Initializable {
     }
     private void setTitle(String nickName){
         Platform.runLater(()->{
-            if (nickName.equals("")) {
+            if (nickName == null) {
                 stage.setTitle("Open chat");
             } else {
                 stage.setTitle(String.format("Open chat [%s]" ,nickName));
@@ -222,6 +230,24 @@ public class Controller implements Initializable {
             i.printStackTrace();
         }
     }
+    private void createChangeWindow(){
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/change.fxml"));
+            Parent root = fxmlLoader.load();
+            changeStage = new Stage();
+            changeStage.setTitle("Open chat nick change window");
+            changeStage.setScene(new Scene(root, 400, 320));
+
+            changeStage.initModality(Modality.APPLICATION_MODAL);
+            changeStage.initStyle(StageStyle.UTILITY);
+
+            changecontroller = fxmlLoader.getController();
+            changecontroller.setController(this);
+
+        } catch(IOException i){
+            i.printStackTrace();
+        }
+    }
 
     public void tryToReg(ActionEvent actionEvent) {
         if (regStage ==null){
@@ -233,7 +259,7 @@ public class Controller implements Initializable {
     }
     public void registration(String login, String password, String nick){
         if (socket == null || socket.isClosed()) {connect();}
-        String msg = String.format("/reg %s %s %s", login, password,nick);
+        String msg = String.format("/reg %s %s %s", nick, login, password);
         try {
             out.writeUTF(msg);
         } catch (IOException e) {
@@ -242,5 +268,23 @@ public class Controller implements Initializable {
 
     }
 
+    public void change (String login, String password, String newNick){
+        if (socket == null || socket.isClosed()) {connect();}
+        String msg = String.format("/change %s %s %s", login, password, newNick);
+        try {
+            out.writeUTF(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    public void tryToChange(ActionEvent actionEvent) {
+        if (changeStage == null){
+            createChangeWindow();
+        }
+        Platform.runLater(()->{
+            changeStage.show();
+        });
+    }
 }
