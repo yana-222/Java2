@@ -33,9 +33,7 @@ public class Changecontroller {
         } else {
             textArea.appendText("New nick you have entered is busy \nor \nyou have entered wrong pare login and password.\nTry again.\n");
         }
-
     }
-
     public void setController(Controller controller) {
         this.controller = controller;
     }

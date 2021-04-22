@@ -10,20 +10,22 @@ public class AuthServiceBD implements AuthService{
 
     public AuthServiceBD() {
     }
+
     @Override
     public boolean changeNick(String login, String password, String newNick) throws SQLException, ClassNotFoundException {
         String str = "SELECT * FROM users";
+        String str1 = "UPDATE users SET nick = '" + newNick + "' WHERE login = '" + login +"' AND password = '" +password+"';";
         connect();
         ResultSet rs = stmt.executeQuery(str);
         while (rs.next()){
-            if (getNickNameByLoginAndPassword(login,password) ==null || rs.getString(1).equals(newNick)) {
+            if (getNickNameByLoginAndPassword(login,password)==null || rs.getString(1).equals(newNick)) {
                 rs.close();
                 disconnect();
                 return false;
             }
         }
         rs.close();
-        String str1 = "UPDATE users SET nick = '" + newNick + "' WHERE login = '" + login +"' AND password = '" +password+"';";
+        connect();
         stmt.executeUpdate(str1);
         disconnect();
         return true;
@@ -85,4 +87,5 @@ public class AuthServiceBD implements AuthService{
             throwables.printStackTrace();
         }
     }
+
 }
