@@ -85,7 +85,6 @@ public class ClientHandler {
 
                     }
 
-
                     while(true) {
                         String str = in.readUTF();
 
@@ -110,6 +109,7 @@ public class ClientHandler {
                                 }
                             } */ // мое решение дз 7
                         } else {
+                            server.getHist().write(nickName + ": "+ str);
                             server.broadcastMsg(this, str);
                         }
                     }
@@ -158,4 +158,5 @@ public class ClientHandler {
     public String getLogin() {
         return login;
     }
+
 }

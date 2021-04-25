@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,6 +18,7 @@ public class Server {
     private static final int PORT = 8189;
     private List<ClientHandler> clients;
     private AuthService authService;
+    private TotalHistory hist;
 
     public Server() {
         clients = new CopyOnWriteArrayList <>();
@@ -24,7 +27,7 @@ public class Server {
         try{
             server = new ServerSocket(PORT);
             System.out.println("Server started");
-
+            hist = new TotalHistory();
             while (true){
                 socket = server.accept();
                 System.out.println("Client connected: " + socket.getRemoteSocketAddress()+socket.getLocalAddress());
@@ -51,7 +54,7 @@ public class Server {
     public void broadcastMsg (ClientHandler clientHandler, String msg) { // широковещательный
         for (ClientHandler c: clients){
             c.sendMsg(clientHandler.getNickName() +": " + msg);
-            System.out.println(clientHandler.getSocket() + " "  +c.getNickName());
+          //  System.out.println(clientHandler.getSocket() + " "  +c.getNickName());
 
         }
     }
@@ -104,5 +107,9 @@ public class Server {
             c.sendMsg(msg);
         }
         System.out.println(msg);
+    }
+
+    public TotalHistory getHist() {
+        return hist;
     }
 }

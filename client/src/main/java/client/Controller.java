@@ -22,6 +22,7 @@ import javafx.stage.WindowEvent;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
@@ -55,6 +56,8 @@ public class Controller implements Initializable {
     private Stage changeStage;
     private Regcontroller prR;
     private Changecontroller changecontroller;
+    private History history;
+    private totalHistory totalHistory;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -75,9 +78,7 @@ public class Controller implements Initializable {
                 }
             });
         });
-
-        setAuthenticated(false);
-
+            setAuthenticated(false);
     }
 
     private void connect() {
@@ -138,6 +139,7 @@ public class Controller implements Initializable {
 
                         } else
                             textArea.appendText(str +"\n");
+                            history.write(str);
                     }
                 } catch (IOException e){
                     e.printStackTrace();
@@ -193,6 +195,15 @@ public class Controller implements Initializable {
         if(!authenticated){
             nickName = null;
         }
+        if(authenticated){
+            try {
+                history= new History(nickName);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         setTitle(nickName);
         textArea.clear();
     }
@@ -202,6 +213,12 @@ public class Controller implements Initializable {
                 stage.setTitle("Open chat");
             } else {
                 stage.setTitle(String.format("Open chat [%s]" ,nickName));
+                try {
+                    totalHistory = new totalHistory();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                textArea.appendText(totalHistory.history_100());
             }
         });
     }
