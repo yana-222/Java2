@@ -22,4 +22,12 @@ public class History {
     public String getWay(String nick) {
         return way = nick + ".txt";
     }
+    public void close(){
+        try {
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

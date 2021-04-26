@@ -96,6 +96,7 @@ public class Controller implements Initializable {
 
                             if (str.equals("/end")) {
                                 System.out.println("Disconnected");
+                                history.close();
                                 break;
                             }
                             if (str.startsWith("/auth_ok")){

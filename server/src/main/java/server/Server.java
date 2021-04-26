@@ -44,6 +44,7 @@ public class Server {
             }
             try {
                 server.close();
+                hist.close();
             } catch (NullPointerException | IOException b) {
                 b.printStackTrace();
             }

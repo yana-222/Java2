@@ -16,15 +16,10 @@ public class totalHistory {
     public totalHistory() throws IOException {
         listHistory = Files.readAllLines(path);
         list.addAll(listHistory);
-        System.out.println(list);
     }
     public String history_100(){
         String str = "";
-        int sz = 0;
-        if (list.size() > 99) {
-            sz = list.size() - 99;
-        }
-        for (int i = sz;i<list.size();i++){
+        for (int i = 99;i>=0;i--){
             str = str + list.get(i) + "\n";
         }
         return "History: \n" + str + "\n";
