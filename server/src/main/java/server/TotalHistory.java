@@ -10,19 +10,28 @@ public class TotalHistory {
     private LocalDateTime date = LocalDateTime.now();
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     RandomAccessFile f;
-    String time = (String) formatter.format(date);
+    FileOutputStream out;
 
-    public TotalHistory() throws FileNotFoundException {
-        f = new RandomAccessFile("total_history.txt","rw");
+    public TotalHistory() throws IOException {
+       // f = new RandomAccessFile("total_history.txt","rw");
+       // f.seek(f.length()-1);
+        out = new FileOutputStream ("total_history.txt",true);
     }
 
     public void write (String msg) throws IOException {
-        f.writeBytes(time + " " + msg+"\n");
+        String time = actualTime();
+        String message = time + " " + msg +"\n";
+       // f.writeBytes(time + " " + msg+"\n");
+        out.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
+    public String actualTime () {
+        date = LocalDateTime.now();
+        return  (String) formatter.format(date);
+    }
     public void close(){
         try {
-            f.close();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -48,7 +48,6 @@ public class Server {
             } catch (NullPointerException | IOException b) {
                 b.printStackTrace();
             }
-
         }
     }
 

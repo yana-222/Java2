@@ -6,28 +6,40 @@ package client;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class History {
-    private String way;
-    RandomAccessFile f;
+   // RandomAccessFile f;
+    FileOutputStream out;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public History(String nick) throws IOException {
-       f = new RandomAccessFile("history_users/history_" + getWay(nick),"rw");
+      // f = new RandomAccessFile("history_users/history_" + getWay(nick),"rw");
+      // f.seek(f.length());
+        out = new FileOutputStream ("history_users/history_" + getWay(nick),true);
     }
 
     public void write (String msg) throws IOException {
-        f.writeBytes(msg+"\n");
+        String time = actualTime();
+        String message = time + " " + msg +"\n";
+       // f.writeBytes(time + " " + msg+"\n");
+        out.write(message.getBytes(StandardCharsets.UTF_8));
     }
 
     public String getWay(String nick) {
-        return way = nick + ".txt";
+        return nick + ".txt";
     }
     public void close(){
         try {
-            f.close();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public String actualTime () {
+        LocalDateTime date = LocalDateTime.now();
+        return  (String) formatter.format(date);
     }
 
 }

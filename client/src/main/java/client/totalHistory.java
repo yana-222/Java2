@@ -1,10 +1,8 @@
 package client;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
@@ -19,7 +17,14 @@ public class totalHistory {
     }
     public String history_100(){
         String str = "";
-        for (int i = 99;i>=0;i--){
+        int rz;
+        int hist_length = 20;
+        if(list.size() >hist_length){
+            rz = list.size()-hist_length;
+        } else {
+            rz = 0;
+        }
+        for (int i = rz;i<list.size();i++){
             str = str + list.get(i) + "\n";
         }
         return "History: \n" + str + "\n";
