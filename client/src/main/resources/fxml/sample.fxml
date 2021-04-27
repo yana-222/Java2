@@ -15,6 +15,7 @@
         <TextField fx:id="loginField" HBox.hgrow="ALWAYS" promptText="login"/>
         <PasswordField fx:id="passwordField" HBox.hgrow="ALWAYS" promptText="password"/>
         <Button text="authorization" onAction="#tryToAuth" minWidth="100"/>
+        <Button text="change nick" onAction="#tryToChange" minWidth="100"/>
         <Button text="registration" onAction="#tryToReg" minWidth="100"/>
     </HBox>
     <HBox VBox.vgrow="ALWAYS">

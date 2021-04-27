@@ -1,4 +1,4 @@
-package server;
+/*package server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SimpleAuthService implements AuthService {
             if(u.nickName.equals(nick)){
                 System.out.println(u.login +"/"+u.password+"/"+u.nickName );}
         }*/
-        return true;
+  /*      return true;
     }
 
     public class UserData{
@@ -50,4 +50,4 @@ public class SimpleAuthService implements AuthService {
             users.add(new UserData("xx"+i,"xx"+i,"xx"+i)) ;
         }
     }
-}
+}*/

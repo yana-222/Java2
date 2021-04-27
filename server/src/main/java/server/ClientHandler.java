@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ClientHandler {
@@ -71,9 +72,18 @@ public class ClientHandler {
                                 sendMsg("/reg_no");
                             }
                         }
+                        if (str.startsWith("/change")) {
+                            String[] token3 = str.split("\\s+", 4);
+                            if(token3.length <4) continue;
+                            boolean c = server.getAuthService().changeNick(token3[1],token3[2],token3[3]);
+                            if (c) {
+                                sendMsg("/change_ok");
+                            } else {
+                                sendMsg("/change_no");
+                            }
+                        }
 
                     }
-
 
                     while(true) {
                         String str = in.readUTF();
@@ -99,6 +109,7 @@ public class ClientHandler {
                                 }
                             } */ // мое решение дз 7
                         } else {
+                            server.getHist().write(nickName + ": "+ str);
                             server.broadcastMsg(this, str);
                         }
                     }
@@ -109,7 +120,7 @@ public class ClientHandler {
 
                 catch (RuntimeException r){
                     System.out.println(r.getMessage());
-                } catch (IOException e){
+                } catch (IOException | SQLException | ClassNotFoundException e){
                     e.printStackTrace();
                 } finally {
                     server.unsubscribe(this);
@@ -147,4 +158,5 @@ public class ClientHandler {
     public String getLogin() {
         return login;
     }
+
 }
