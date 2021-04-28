@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     private static ServerSocket server;
@@ -19,6 +21,7 @@ public class Server {
     private List<ClientHandler> clients;
     private AuthService authService;
     private TotalHistory hist;
+    ExecutorService service = Executors.newCachedThreadPool();
 
     public Server() {
         clients = new CopyOnWriteArrayList <>();
@@ -45,6 +48,7 @@ public class Server {
             try {
                 server.close();
                 hist.close();
+                service.shutdown();
             } catch (NullPointerException | IOException b) {
                 b.printStackTrace();
             }
@@ -53,11 +57,12 @@ public class Server {
 
     public void broadcastMsg (ClientHandler clientHandler, String msg) { // широковещательный
         for (ClientHandler c: clients){
-            c.sendMsg(clientHandler.getNickName() +": " + msg);
+            service.execute(()-> { c.sendMsg(clientHandler.getNickName() +": " + msg);
           //  System.out.println(clientHandler.getSocket() + " "  +c.getNickName());
-
+            });
         }
     }
+
     public void privatMsg (ClientHandler sender, String receiver, String msg) { // широковещательный
         String message = String.format("%s -> %s : %s", sender.getNickName(),receiver,msg);
         for (ClientHandler c: clients){
