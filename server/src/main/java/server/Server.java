@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.*;
 
 public class Server {
     private static ServerSocket server;
@@ -22,18 +23,24 @@ public class Server {
     private AuthService authService;
     private TotalHistory hist;
     ExecutorService service = Executors.newCachedThreadPool();
+    private static final Logger logger = java.util.logging.Logger.getLogger(Server.class.getName());
+    private final Handler handler = new ConsoleHandler();
 
     public Server() {
         clients = new CopyOnWriteArrayList <>();
+        logger.setUseParentHandlers(false);
+        logger.addHandler(handler);
+        logger.setLevel(Level.ALL);
+        handler.setLevel(Level.ALL);
        // authService = new SimpleAuthService();
         authService = new AuthServiceBD();
         try{
             server = new ServerSocket(PORT);
-            System.out.println("Server started");
+            logger.info("Server started");
             hist = new TotalHistory();
             while (true){
                 socket = server.accept();
-                System.out.println("Client connected: " + socket.getRemoteSocketAddress()+socket.getLocalAddress());
+                logger.info("Client connected: " + socket.getRemoteSocketAddress()+socket.getLocalAddress());
                 new ClientHandler(this,socket);
             }
 
@@ -116,5 +123,13 @@ public class Server {
 
     public TotalHistory getHist() {
         return hist;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public Handler getHandler() {
+        return handler;
     }
 }
