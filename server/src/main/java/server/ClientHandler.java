@@ -29,8 +29,10 @@ public class ClientHandler {
 
                     while(true){
                         String str = in.readUTF();
+                        server.getLogger().fine("Msg from " + socket.getRemoteSocketAddress() + ": " + str);
                         if (str.equals("/end")) {
                             out.writeUTF("/end");
+                            server.getLogger().info("Client " + nickName +" disconnected: ");
                             throw new RuntimeException("Client disconnected");
                         }
 
@@ -68,8 +70,10 @@ public class ClientHandler {
                             boolean b = server.getAuthService().registration(token2[1],token2[2],token2[3]);
                             if (b) {
                                 sendMsg("/reg_ok");
+                                server.getLogger().info("Succesful registration " + socket.getRemoteSocketAddress() + ": " + nickName);
                             } else {
                                 sendMsg("/reg_no");
+                                server.getLogger().info("Error registration " + socket.getRemoteSocketAddress() +": " + str);
                             }
                         }
                         if (str.startsWith("/change")) {
@@ -78,8 +82,10 @@ public class ClientHandler {
                             boolean c = server.getAuthService().changeNick(token3[1],token3[2],token3[3]);
                             if (c) {
                                 sendMsg("/change_ok");
+                                server.getLogger().info("Nick changed: " + nickName);
                             } else {
                                 sendMsg("/change_no");
+                                server.getLogger().info("Error changing nick: " + str);
                             }
                         }
 
@@ -111,24 +117,26 @@ public class ClientHandler {
                         } else {
                             server.getHist().write(nickName + ": "+ str);
                             server.broadcastMsg(this, str);
+                            server.getLogger().fine("Msg " + nickName +": " + str);
                         }
                     }
                 } catch (SocketTimeoutException r){
-                    System.out.println("Client "+socket.getRemoteSocketAddress() + " disconnected by timeout");
+                    server.getLogger().info("Client "+socket.getRemoteSocketAddress() + " disconnected by timeout");
                     sendMsg("/end");
                 }
 
                 catch (RuntimeException r){
-                    System.out.println(r.getMessage());
+                    server.getLogger().info("Error: " + r.getMessage());
+
                 } catch (IOException | SQLException | ClassNotFoundException e){
-                    e.printStackTrace();
+                    server.getLogger().info("Error: " + e.getMessage());
                 } finally {
                     server.unsubscribe(this);
-                    System.out.println("Client " + socket.getRemoteSocketAddress()+" disconnected");
+                    server.getLogger().info("Client " + socket.getRemoteSocketAddress()+" disconnected");
                     try {
                         socket.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        server.getLogger().info("Error closing socket: " + e.getMessage());
                     }
                 }
             }).start();
